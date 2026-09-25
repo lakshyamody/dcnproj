@@ -1,0 +1,197 @@
+/*
+ * Styles for <Component /> in horizon-hero-section.tsx.
+ *
+ * The component ships with class names but no stylesheet, so this supplies
+ * them. Every rule is nested under .hero-container so nothing leaks into the
+ * rest of the app — this component sets raw font sizes on purpose and must
+ * not reach the site's type tokens.
+ */
+
+.hero-container {
+  position: relative;
+  width: 100%;
+  background: #000;
+  color: #fff;
+  font-family: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+  overflow-x: clip;
+}
+
+/* The canvas is fixed so the scene stays put while the sections scroll past. */
+.hero-container .hero-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  display: block;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ *
+ * Type
+ * ------------------------------------------------------------------ */
+.hero-container .hero-title {
+  margin: 0;
+  font-size: clamp(3rem, 13vw, 11rem);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  color: #fff;
+  text-shadow: 0 0 60px rgba(120, 180, 255, 0.35);
+}
+
+.hero-container .title-char {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+.hero-container .hero-subtitle {
+  margin-top: 1.75rem;
+  text-align: center;
+}
+
+.hero-container .subtitle-line {
+  margin: 0.25rem 0;
+  font-size: clamp(0.875rem, 1.6vw, 1.125rem);
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+/* ------------------------------------------------------------------ *
+ * Sections
+ * ------------------------------------------------------------------ */
+.hero-container .hero-content,
+.hero-container .content-section {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1.5rem;
+}
+
+/* ------------------------------------------------------------------ *
+ * Side menu
+ * ------------------------------------------------------------------ */
+.hero-container .side-menu {
+  position: fixed;
+  top: 50%;
+  left: 2rem;
+  transform: translateY(-50%);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.75rem;
+}
+
+.hero-container .menu-icon {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.hero-container .menu-icon span {
+  display: block;
+  width: 26px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.75);
+  transition: width 0.3s ease;
+}
+
+.hero-container .menu-icon:hover span:nth-child(2) {
+  width: 18px;
+}
+
+.hero-container .vertical-text {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* ------------------------------------------------------------------ *
+ * Scroll progress
+ * ------------------------------------------------------------------ */
+.hero-container .scroll-progress {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: min(320px, 70vw);
+}
+
+.hero-container .scroll-text,
+.hero-container .section-counter {
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.hero-container .section-counter {
+  font-variant-numeric: tabular-nums;
+}
+
+.hero-container .progress-track {
+  position: relative;
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.18);
+  overflow: hidden;
+}
+
+.hero-container .progress-fill {
+  height: 100%;
+  background: #fff;
+  transition: width 0.1s linear;
+}
+
+/* ------------------------------------------------------------------ *
+ * Responsive
+ * ------------------------------------------------------------------ */
+@media (max-width: 640px) {
+  .hero-container .side-menu {
+    left: 1rem;
+    gap: 1.25rem;
+  }
+
+  .hero-container .hero-title {
+    letter-spacing: 0.04em;
+  }
+
+  .hero-container .scroll-progress {
+    bottom: 1.25rem;
+  }
+}
+
+/* The GSAP intro and the Three.js loop are JS-driven, so the global
+   reduced-motion rule cannot reach them. Reveal the content immediately
+   instead of leaving it hidden behind an animation that will not play. */
+@media (prefers-reduced-motion: reduce) {
+  .hero-container .side-menu,
+  .hero-container .scroll-progress {
+    visibility: visible !important;
+  }
+
+  .hero-container .progress-fill {
+    transition: none;
+  }
+}
