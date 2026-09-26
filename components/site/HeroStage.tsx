@@ -77,7 +77,7 @@ const FOCAL = 780;
 
 /** Camera travel across the hero scroll. It stops short of the last slices so
  *  there is always topology ahead rather than an empty frame at the end. */
-const CAM_START_Z = 700;
+const CAM_START_Z = 880;
 const CAM_END_Z = -2400;
 
 interface Star {
@@ -169,8 +169,12 @@ export function HeroStage({ getState }: { getState: () => HeroStageState }) {
       const p = clamp01(rawP);
       ctx.clearRect(0, 0, w, h);
 
-      const cx = w / 2;
-      const cy = h / 2;
+      // Beat 1 sets its copy on the left, so the scene sits right of centre and
+      // only recentres once the centred beats take over.
+      const wide = w / dpr >= 1360;
+      const bias = wide ? 0.5 + 0.26 * (1 - smooth(0, 0.34, p)) : 0.5;
+      const cx = w * bias;
+      const cy = h * (wide ? 0.5 : 0.46);
       const camZ = CAM_START_Z + (CAM_END_Z - CAM_START_Z) * easeOut(p);
       const drift = reduced ? 0 : time * 0.00018;
 
@@ -194,10 +198,15 @@ export function HeroStage({ getState }: { getState: () => HeroStageState }) {
       }
 
       /* ------------------------------------------------ network slices */
-      // Which phase of the algorithm is running, driven by scroll.
-      const flood = smooth(0.02, 0.34, p);
-      const treeT = smooth(0.3, 0.66, p);
-      const fwd = smooth(0.6, 0.9, p);
+      // Which phase of the algorithm is running, driven by scroll — except the
+      // flood, which keeps ticking on its own at the top so the hero is alive
+      // before the visitor has scrolled at all, and fades out as the tree takes
+      // over. The tree also starts part-lit so the graph has structure on
+      // arrival rather than reading as a flat grey mesh.
+      const floodPhase = reduced ? 0.45 : (time * 0.00022) % 1;
+      const floodAmp = 1 - smooth(0.24, 0.5, p);
+      const treeT = Math.max(0.42, smooth(0, 0.58, p));
+      const fwd = smooth(0.55, 0.92, p);
       const broken = p > 0.74;
       const activeTree = broken ? TREE_REROUTED : TREE;
       const path = broken ? TRIP2.path : TRIP.path;
@@ -250,7 +259,7 @@ export function HeroStage({ getState }: { getState: () => HeroStageState }) {
             ctx.setLineDash([]);
           } else {
             ctx.lineTo(pb.x, pb.y);
-            ctx.strokeStyle = `rgba(120, 180, 150, ${0.2 * depthFade})`;
+            ctx.strokeStyle = `rgba(120, 180, 150, ${0.3 * depthFade})`;
             ctx.lineWidth = Math.max(0.5, 1.1 * pa.s * dpr);
             ctx.stroke();
 
@@ -289,7 +298,7 @@ export function HeroStage({ getState }: { getState: () => HeroStageState }) {
             ctx.restore();
           }
 
-          ctx.fillStyle = `rgba(5, 10, 8, ${0.92 * depthFade})`;
+          ctx.fillStyle = `rgba(5, 10, 8, ${0.62 * depthFade})`;
           ctx.beginPath();
           ctx.arc(pn.x, pn.y, r, 0, Math.PI * 2);
           ctx.fill();
@@ -312,15 +321,15 @@ export function HeroStage({ getState }: { getState: () => HeroStageState }) {
         }
 
         /* ------------------------------------------ flood rings (lead slice) */
-        if (lead && flood > 0 && flood < 1) {
-          const wave = flood * (MAX_HOPS + 1.3);
+        if (lead && floodAmp > 0.02) {
+          const wave = floodPhase * (MAX_HOPS + 1.3);
           for (const node of G.nodes) {
             const local = wave - (HOPS[node.id] ?? 99);
             if (local <= 0 || local > 1.3) continue;
             const wn = world(node);
             const pn = project(wn.x, wn.y, sliceZ, camZ, cx, cy);
             if (!pn) continue;
-            ctx.strokeStyle = `rgba(${EMERALD}, ${0.45 * (1 - local / 1.3)})`;
+            ctx.strokeStyle = `rgba(${EMERALD}, ${0.45 * (1 - local / 1.3) * floodAmp})`;
             ctx.lineWidth = Math.max(0.8, 1.4 * pn.s * dpr);
             ctx.beginPath();
             ctx.arc(pn.x, pn.y, (10 + local * 46) * pn.s, 0, Math.PI * 2);

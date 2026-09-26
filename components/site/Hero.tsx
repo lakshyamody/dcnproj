@@ -50,8 +50,7 @@ export function Hero() {
   const rootRef = useRef<HTMLDivElement>(null);
   const silkRef = useRef<HTMLDivElement>(null);
   const chromeRef = useRef<HTMLDivElement>(null);
-  const fillRef = useRef<HTMLDivElement>(null);
-  const counterRef = useRef<HTMLSpanElement>(null);
+  const scrimRef = useRef<HTMLDivElement>(null);
   const beatRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // Live scroll state through the hero, read by the stage every frame.
@@ -78,14 +77,16 @@ export function Hero() {
         chromeRef.current.style.pointerEvents = out > 0.6 ? "none" : "auto";
       }
 
-      if (fillRef.current) fillRef.current.style.width = `${p * 100}%`;
       const current = Math.min(TOTAL_SECTIONS, Math.floor(p * TOTAL_SECTIONS) + 1);
-      if (counterRef.current) {
-        counterRef.current.textContent = `${String(current).padStart(2, "0")} / ${String(
-          TOTAL_SECTIONS,
-        ).padStart(2, "0")}`;
-      }
       setSection((prev) => (prev === current ? prev : current));
+
+      // Readability: a left wash while the copy is left-aligned, handing over to
+      // a centred wash once the centred beats arrive.
+      if (scrimRef.current) {
+        const left = 1 - Math.min(1, Math.max(0, (p - 0.04) / 0.26));
+        scrimRef.current.style.setProperty("--scrim-left", String(left));
+        scrimRef.current.style.setProperty("--scrim-mid", String(1 - left));
+      }
 
       // Crossfade the beats: each owns a third of the travel.
       beatRefs.current.forEach((node, i) => {
@@ -128,16 +129,56 @@ export function Hero() {
         <SilkRibbon />
       </div>
       <HeroStage getState={getState} />
+
+      {/* Readability wash. Weighted left while the copy is left-aligned, then
+          crossfading to a centred wash for the centred beats. */}
       <div
+        ref={scrimRef}
         className="pointer-events-none fixed inset-0 z-0"
-        style={{ background: "radial-gradient(120% 70% at 50% 50%, transparent 30%, rgba(5,8,7,.72) 100%)" }}
+        style={
+          {
+            "--scrim-left": 1,
+            "--scrim-mid": 0,
+          } as React.CSSProperties
+        }
         aria-hidden="true"
-      />
+      >
+        <div
+          className="absolute inset-0 hidden min-[1360px]:block"
+          style={{
+            opacity: "var(--scrim-left)",
+            background:
+              "linear-gradient(90deg, rgba(5,8,7,.95) 0%, rgba(5,8,7,.9) 40%, rgba(5,8,7,.42) 64%, rgba(5,8,7,0) 84%)",
+          }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            opacity: "var(--scrim-mid)",
+            background:
+              "radial-gradient(58% 46% at 50% 52%, rgba(5,8,7,.88) 0%, rgba(5,8,7,.58) 55%, rgba(5,8,7,0) 100%)",
+          }}
+        />
+        <div
+          className="absolute inset-0 min-[1360px]:hidden"
+          style={{
+            background:
+              "radial-gradient(62% 50% at 50% 50%, rgba(5,8,7,.9) 0%, rgba(5,8,7,.62) 58%, rgba(5,8,7,.1) 100%)",
+          }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(130% 78% at 50% 50%, transparent 42%, rgba(5,8,7,.66) 100%)",
+          }}
+        />
+      </div>
 
       {/* ---------------------------------------------- fixed chrome */}
       <div ref={chromeRef} className="pointer-events-none fixed inset-0 z-20">
         {/* side menu */}
-        <div className="absolute top-1/2 left-4 hidden -translate-y-1/2 flex-col items-center gap-6 sm:flex lg:left-8">
+        <div className="absolute top-1/2 left-5 hidden -translate-y-1/2 flex-col items-center gap-6 min-[1360px]:flex">
           <span className="flex flex-col gap-[5px]" aria-hidden="true">
             <span className="block h-px w-6 bg-foreground/60" />
             <span className="block h-px w-6 bg-foreground/60" />
@@ -151,16 +192,6 @@ export function Hero() {
           </span>
         </div>
 
-        {/* scroll progress */}
-        <div className="absolute bottom-6 left-1/2 flex w-[min(320px,68vw)] -translate-x-1/2 flex-col items-center gap-3">
-          <span className="t-pill text-dim">Scroll</span>
-          <span className="h-px w-full overflow-hidden bg-foreground/15">
-            <span ref={fillRef} className="block h-full bg-emerald-bright" style={{ width: "0%" }} />
-          </span>
-          <span ref={counterRef} className="t-pill mono text-dim">
-            01 / {String(TOTAL_SECTIONS).padStart(2, "0")}
-          </span>
-        </div>
       </div>
 
       {/* ---------------------------------------------- beat 1: the lab */}
