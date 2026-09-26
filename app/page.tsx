@@ -19,7 +19,7 @@ export default async function Home() {
     <>
       <div id="top" />
       <Navbar />
-      <main>
+      <main className="relative z-10">
         <Hero />
         <Aim />
         <ScrollStory codeHtml={codeHtml} />
