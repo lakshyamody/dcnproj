@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import { ArrowDown, ArrowRight, ArrowUpRight } from "lucide-react";
-import Link from "next/link";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useReducedMotionSafe } from "@/lib/useReducedMotionSafe";
@@ -157,10 +156,12 @@ export function ArrowLink({
       </a>
     );
   }
+  // In-page fragment: a plain anchor, because the App Router swallows hash
+  // navigation through next/link and never scrolls to the target.
   return (
-    <Link href={href} className={cls} onClick={onClick}>
+    <a href={href} className={cls} onClick={onClick}>
       {inner}
-    </Link>
+    </a>
   );
 }
 

@@ -2,7 +2,6 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, ChevronDown, Menu } from "lucide-react";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -46,6 +45,9 @@ const MENUS: { label: string; items: Item[] }[] = [
   },
 ];
 
+// Same-page fragments use a plain <a>, not next/link. The App Router
+// intercepts hash Links and does not scroll to the target, so the
+// hero and nav anchors silently did nothing.
 const LINKS = [
   { label: "Aim", href: "#aim" },
   { label: "Conclusion", href: "#conclusion" },
@@ -90,9 +92,9 @@ export function Navbar() {
             WebkitBackdropFilter: "blur(24px)",
           }}
         >
-          <Link href="#top" aria-label="vlab.routing — back to top" className="shrink-0">
+          <a href="#top" aria-label="vlab.routing — back to top" className="shrink-0">
             <Logo />
-          </Link>
+          </a>
 
           {/* ------------------------------------------------ desktop nav */}
           <NavigationMenu
@@ -112,7 +114,7 @@ export function Navbar() {
                       {menu.items.map((item) => (
                         <li key={item.label}>
                           <NavigationMenuLink asChild>
-                            <Link
+                            <a
                               href={item.href}
                               className="block rounded-md px-3 py-2.5 transition-colors hover:bg-emerald-deep/50 focus:bg-emerald-deep/50"
                             >
@@ -120,7 +122,7 @@ export function Navbar() {
                               <span className="t-small mono mt-0.5 block text-dim">
                                 {item.note}
                               </span>
-                            </Link>
+                            </a>
                           </NavigationMenuLink>
                         </li>
                       ))}
@@ -132,12 +134,12 @@ export function Navbar() {
               {LINKS.map((l) => (
                 <NavigationMenuItem key={l.href}>
                   <NavigationMenuLink asChild>
-                    <Link
+                    <a
                       href={l.href}
                       className="flex h-9 items-center rounded-md px-3 t-small text-foreground transition-colors hover:bg-white/5"
                     >
                       {l.label}
-                    </Link>
+                    </a>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
               ))}
@@ -149,7 +151,7 @@ export function Navbar() {
             variant="outline"
             className="ml-auto hidden h-9 border-emerald-bright/25 bg-emerald-deep/50 px-4 t-small text-foreground hover:bg-emerald-deep lg:ml-2 lg:flex"
           >
-            <Link href="#simulation">Start Lab</Link>
+            <a href="#simulation">Start Lab</a>
           </Button>
 
           {/* ------------------------------------------------ mobile nav */}
@@ -175,7 +177,7 @@ export function Navbar() {
                   <div key={menu.label} className="py-3">
                     <p className="eyebrow px-2 pb-1.5">{menu.label}</p>
                     {menu.items.map((item) => (
-                      <Link
+                      <a
                         key={item.label + item.href}
                         href={item.href}
                         onClick={() => setSheet(false)}
@@ -183,20 +185,20 @@ export function Navbar() {
                       >
                         {item.label}
                         <span className="t-small mono block text-dim">{item.note}</span>
-                      </Link>
+                      </a>
                     ))}
                   </div>
                 ))}
                 <div className="border-t border-border py-3">
                   {LINKS.map((l) => (
-                    <Link
+                    <a
                       key={l.href}
                       href={l.href}
                       onClick={() => setSheet(false)}
                       className="block rounded-md px-2 py-2 t-small text-foreground transition-colors hover:bg-emerald-deep/50"
                     >
                       {l.label}
-                    </Link>
+                    </a>
                   ))}
                 </div>
                 <Button
@@ -204,10 +206,10 @@ export function Navbar() {
                   className="group mt-2 w-full bg-primary text-primary-foreground hover:bg-primary/90"
                   onClick={() => setSheet(false)}
                 >
-                  <Link href="#simulation">
+                  <a href="#simulation">
                     Start Lab
                     <ArrowRight className="arrow-nudge size-4" />
-                  </Link>
+                  </a>
                 </Button>
               </nav>
             </SheetContent>

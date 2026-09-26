@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import Link from "next/link";
 import { ArrowDown, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -23,6 +22,10 @@ const HeroStage = dynamic(() => import("./HeroStage").then((m) => m.HeroStage), 
 });
 
 const EASE = [0.22, 1, 0.36, 1] as const;
+// Same-page fragments use a plain <a>, not next/link. The App Router
+// intercepts hash Links and does not scroll to the target, so the
+// hero and nav anchors silently did nothing.
+
 
 /** The three beats you scroll through, matching the algorithm phases on stage. */
 const BEATS = [
@@ -72,10 +75,11 @@ export function Hero() {
       const out = Math.min(1, Math.max(0, (window.innerHeight - bottom) / (window.innerHeight * 0.6)));
       state.current.alpha = 1 - out;
       if (silkRef.current) silkRef.current.style.opacity = String((1 - out) * 0.6);
-      if (chromeRef.current) {
-        chromeRef.current.style.opacity = String(1 - out);
-        chromeRef.current.style.pointerEvents = out > 0.6 ? "none" : "auto";
-      }
+      // Opacity only. The chrome is a full-viewport overlay holding nothing
+      // interactive, so it must never take pointer events — setting them
+      // inline here overrode the pointer-events-none class and swallowed
+      // every click in the hero.
+      if (chromeRef.current) chromeRef.current.style.opacity = String(1 - out);
 
       const current = Math.min(TOTAL_SECTIONS, Math.floor(p * TOTAL_SECTIONS) + 1);
       setSection((prev) => (prev === current ? prev : current));
@@ -282,16 +286,16 @@ export function Hero() {
                 size="lg"
                 className="t-body group h-12 rounded-md bg-primary px-5 text-primary-foreground hover:bg-primary/90"
               >
-                <Link href="#simulation">
+                <a href="#simulation">
                   Start the simulation
                   <ArrowRight className="arrow-nudge size-4" strokeWidth={1.75} />
-                </Link>
+                </a>
               </Button>
 
-              <Link href="#story" className="t-body group inline-flex items-center gap-2 text-foreground">
+              <a href="#story" className="t-body group inline-flex items-center gap-2 text-foreground">
                 <span className="underline-offset-[6px] group-hover:underline">Read the theory</span>
                 <ArrowDown className="arrow-nudge arrow-nudge-down size-4" strokeWidth={1.75} />
-              </Link>
+              </a>
             </motion.div>
           </div>
         </div>

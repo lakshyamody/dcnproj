@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EXPERIMENT_NUMBER, INSTITUTION, LOGO_SRC } from "@/lib/config";
@@ -64,7 +63,7 @@ export function Footer() {
               asChild
               className="t-small mt-6 h-10 rounded-md bg-primary px-4 text-primary-foreground hover:bg-primary/90"
             >
-              <Link href="#simulation">Open the lab</Link>
+              <a href="#simulation">Open the lab</a>
             </Button>
 
             <div className="mt-14 grid gap-8 sm:grid-cols-3">
@@ -98,12 +97,12 @@ export function Footer() {
                               <ArrowUpRight className="mt-0.5 size-3 shrink-0" strokeWidth={1.75} />
                             </a>
                           ) : (
-                            <Link
+                            <a
                               href={l.href}
                               className="t-small text-muted-foreground transition-colors hover:text-foreground"
                             >
                               {l.label}
-                            </Link>
+                            </a>
                           )}
                         </li>
                       );
